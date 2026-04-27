@@ -525,6 +525,7 @@ open class JXSegmentedView: UIView, JXSegmentedViewRTLCompatible {
             return
         }
 
+        var canClick = true
         if index == selectedIndex {
             if selectedType == .code {
                 listContainer?.didClickSelectedItem(at: index)
@@ -532,13 +533,24 @@ open class JXSegmentedView: UIView, JXSegmentedViewRTLCompatible {
                 //用户可以拦截
                if delegate?.segmentedView(self, didClickSelectedItemAt: index) ?? true {
                    listContainer?.didClickSelectedItem(at: index)
+               }else {
+                   canClick = false
                }
             }else if selectedType == .scroll {
                 delegate?.segmentedView(self, didScrollSelectedItemAt: index)
             }
-            delegate?.segmentedView(self, didSelectedItemAt: index)
-            scrollingTargetIndex = -1
+            if canClick {
+                delegate?.segmentedView(self, didSelectedItemAt: index)
+                scrollingTargetIndex = -1
+            }
             return
+        }
+        
+        if selectedType == .click {
+            //用户可以拦截
+           if !(delegate?.segmentedView(self, didClickSelectedItemAt: selectedIndex) ?? true) {
+               return
+           }
         }
 
         let currentSelectedItemModel = itemDataSource[selectedIndex]
@@ -603,11 +615,15 @@ open class JXSegmentedView: UIView, JXSegmentedViewRTLCompatible {
         }else if selectedType == .click {
             if delegate?.segmentedView(self, didClickSelectedItemAt: index) ?? true {
                 listContainer?.didClickSelectedItem(at: index)
+            }else {
+                canClick = false
             }
         }else if selectedType == .scroll {
             delegate?.segmentedView(self, didScrollSelectedItemAt: index)
         }
-        delegate?.segmentedView(self, didSelectedItemAt: index)
+        if canClick {
+            delegate?.segmentedView(self, didSelectedItemAt: index)
+        }
     }
 
     private func getItemFrameAt(index: Int) -> CGRect {

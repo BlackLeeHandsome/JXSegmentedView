@@ -110,7 +110,7 @@ public protocol JXSegmentedViewDelegate: AnyObject {
     /// - Parameters:
     ///   - segmentedView: JXSegmentedView
     ///   - index: 选中的index
-    func segmentedView(_ segmentedView: JXSegmentedView, didClickSelectedItemAt index: Int)
+    func segmentedView(_ segmentedView: JXSegmentedView, didClickSelectedItemAt index: Int)  -> Bool
 
     /// 滚动选中的情况才会调用该方法
     ///
@@ -140,7 +140,7 @@ public protocol JXSegmentedViewDelegate: AnyObject {
 /// 提供JXSegmentedViewDelegate的默认实现，这样对于遵从JXSegmentedViewDelegate的类来说，所有代理方法都是可选实现的。
 public extension JXSegmentedViewDelegate {
     func segmentedView(_ segmentedView: JXSegmentedView, didSelectedItemAt index: Int) { }
-    func segmentedView(_ segmentedView: JXSegmentedView, didClickSelectedItemAt index: Int) { }
+    func segmentedView(_ segmentedView: JXSegmentedView, didClickSelectedItemAt index: Int) -> Bool { return true }
     func segmentedView(_ segmentedView: JXSegmentedView, didScrollSelectedItemAt index: Int) { }
     func segmentedView(_ segmentedView: JXSegmentedView, scrollingFrom leftIndex: Int, to rightIndex: Int, percent: CGFloat) { }
     func segmentedView(_ segmentedView: JXSegmentedView, canClickItemAt index: Int) -> Bool { return true }
@@ -529,8 +529,10 @@ open class JXSegmentedView: UIView, JXSegmentedViewRTLCompatible {
             if selectedType == .code {
                 listContainer?.didClickSelectedItem(at: index)
             }else if selectedType == .click {
-                delegate?.segmentedView(self, didClickSelectedItemAt: index)
-                listContainer?.didClickSelectedItem(at: index)
+                //用户可以拦截
+               if delegate?.segmentedView(self, didClickSelectedItemAt: index) ?? true {
+                   listContainer?.didClickSelectedItem(at: index)
+               }
             }else if selectedType == .scroll {
                 delegate?.segmentedView(self, didScrollSelectedItemAt: index)
             }
@@ -599,8 +601,9 @@ open class JXSegmentedView: UIView, JXSegmentedViewRTLCompatible {
         if selectedType == .code {
             listContainer?.didClickSelectedItem(at: index)
         }else if selectedType == .click {
-            delegate?.segmentedView(self, didClickSelectedItemAt: index)
-            listContainer?.didClickSelectedItem(at: index)
+            if delegate?.segmentedView(self, didClickSelectedItemAt: index) ?? true {
+                listContainer?.didClickSelectedItem(at: index)
+            }
         }else if selectedType == .scroll {
             delegate?.segmentedView(self, didScrollSelectedItemAt: index)
         }

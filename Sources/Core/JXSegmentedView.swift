@@ -546,12 +546,6 @@ open class JXSegmentedView: UIView, JXSegmentedViewRTLCompatible {
             return
         }
         
-        if selectedType == .click {
-            //用户可以拦截
-           if !(delegate?.segmentedView(self, didClickSelectedItemAt: selectedIndex) ?? true) {
-               return
-           }
-        }
 
         let currentSelectedItemModel = itemDataSource[selectedIndex]
         let willSelectedItemModel = itemDataSource[index]
@@ -591,6 +585,13 @@ open class JXSegmentedView: UIView, JXSegmentedViewRTLCompatible {
         }
 
         selectedIndex = index
+        
+        if selectedType == .click {
+            //用户可以拦截
+           if !(delegate?.segmentedView(self, didClickSelectedItemAt: selectedIndex) ?? true) {
+               return
+           }
+        }
 
         let currentSelectedItemFrame = getSelectedItemFrameAt(index: selectedIndex)
         for indicator in indicators {
